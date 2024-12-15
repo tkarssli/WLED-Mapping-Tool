@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './GridSettings.css';
 
 interface GridSettingsProps {
   onGridSizeChange: (x: number, y: number) => void;
@@ -30,14 +29,14 @@ const GridSettings: React.FC<GridSettingsProps> = ({ onGridSizeChange }) => {
   }, [debouncedX, debouncedY]);
 
   return (
-    <form className='gridSettings'>
-      <label>
-        Grid X:
-        <input type="number" value={x} onChange={(e) => setX(Math.max(1, Number(e.target.value)))} />
+    <form className='flex flex-row gap-8 py-8 '>
+      <label className='text-primary-content input input-bordered flex items-center gap-2'>
+        Grid X:{' '}
+        <input className="text-red-600 input input-sm input-bordered w-full max-w-16" type="number" value={x} onChange={(e) => setX(Math.max(1, Number(e.target.value)))} />
       </label>
-      <label>
-        Grid Y:
-        <input type="number" value={y} onChange={(e) => setY(Math.max(1, Number(e.target.value)))} />
+      <label className='text-primary-content input input-bordered flex items-center gap-2'>
+        Grid Y:{' '}
+        <input className="text-red-600 input input-sm input-bordered w-full  max-w-16" value={y} onChange={(e) => setY(Math.max(1, Number(e.target.value)))} />
       </label>
     </form>
   );
