@@ -10,7 +10,7 @@ const OutputPanel: React.FC<OutputPanelProps> = ({ grid }) => {
   const generateJSON = () => {
     const json = {
       leds: grid
-        .flatMap((row, y) => row.map((cell) => (cell.enabled ? cell.index : -1)))
+        .flatMap((row) => row.map((cell) => (cell.enabled ? cell.index : -1)))
         .filter((cell) => cell !== null),
     };
     return JSON.stringify(json, null, 0);
