@@ -28,7 +28,7 @@ const OutputPanel: React.FC<OutputPanelProps> = ({ grid }) => {
 
   return (
     <div className='outputPanel'>
-      <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{generateJSON()}</pre>
+      <pre >{generateJSON()}</pre>
       <button onClick={downloadJSON}>Download JSON</button>
     </div>
   );

@@ -15,6 +15,7 @@ const App: React.FC = () => {
 
   const handleGridSizeChange = (x: number, y: number) => {
     setGridSize({ x, y });
+    setGridState([])
   };
 
   return (
