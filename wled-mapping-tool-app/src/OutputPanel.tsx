@@ -1,6 +1,7 @@
 import React from 'react';
 import { InitialCellState } from './App';
 import './OutputPanel.css';
+import CodeBlock from './CodeBlock';
 
 interface OutputPanelProps {
   grid: InitialCellState[][];
@@ -28,8 +29,7 @@ const OutputPanel: React.FC<OutputPanelProps> = ({ grid }) => {
 
   return (
     <div className='outputPanel'>
-      <pre >{generateJSON()}</pre>
-      <button onClick={downloadJSON}>Download JSON</button>
+      <CodeBlock language={'json'} downloadHandler={downloadJSON}>{generateJSON()}</CodeBlock>
     </div>
   );
 };
