@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrom against localhost",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/wled-mapping-tool-app"
+    }
+  ]
+}
