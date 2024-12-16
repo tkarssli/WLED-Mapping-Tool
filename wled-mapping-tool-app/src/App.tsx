@@ -25,13 +25,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="app relative h-screen flex flex-col items-center">
-      <span className="text-primary realtive text-5xl font-extrabold bg-gradient-to-r from-red-600 via-green-500 to-blue-600  text-transparent bg-clip-text backdrop-blur-sm ">
-        <span className="absolute text-primary text-5xl font-extrabold bg-gradient-to-r from-red-600 via-green-500 to-blue-600  text-transparent bg-clip-text backdrop-blur-sm ">
+    <div className="app relative flex h-screen flex-col items-center">
+      <div>
+        <span className="absolute mx-auto box-content flex w-fit select-none border bg-gradient-to-r from-red-500 via-green-600 to-blue-600 bg-clip-text text-center text-6xl font-extrabold leading-loose text-transparent blur-xl">
           WLED Mapping Tool
         </span>
-        WLED Mapping Tool
-      </span>
+        <h1 className="relative top-0 flex h-auto w-fit select-auto items-center justify-center bg-gradient-to-r from-red-500 via-green-600 to-blue-600 bg-clip-text text-center text-6xl font-extrabold leading-loose text-transparent">
+          WLED Mapping Tool
+        </h1>
+      </div>
 
       <GridSettings onGridSizeChange={handleGridSizeChange} />
       <LEDGrid
@@ -42,15 +44,15 @@ const App: React.FC = () => {
       <OutputPanel grid={gridState} />
 
       <div className="">
-        <label className="absolute top-2 right-2 w-12 h-6">
+        <label className="absolute right-2 top-2 h-6 w-12">
           {/* Hidden Checkbox */}
           <input
             type="checkbox"
-            className="opacity-0 w-0 h-0"
+            className="h-0 w-0 opacity-0"
             data-toggle-theme="forest,cupcake"
           />
           {/* Custom Toggle with SVGs */}
-          <span className="btn btn-outline btn-square btn-sm">
+          <span className="btn btn-square btn-outline btn-sm">
             {/* SVG for Dark Mode */}
             <svg
               xmlns="http://www.w3.org/2000/svg"

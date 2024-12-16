@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 interface GridSettingsProps {
   onGridSizeChange: (x: number, y: number) => void;
@@ -10,6 +10,8 @@ const GridSettings: React.FC<GridSettingsProps> = ({ onGridSizeChange }) => {
 
   const [debouncedX, setDebouncedX] = useState(x);
   const [debouncedY, setDebouncedY] = useState(y);
+
+  const [gapMode, setGapMode] = useState(true);
 
   // Debounce the input changes
   useEffect(() => {
@@ -29,14 +31,35 @@ const GridSettings: React.FC<GridSettingsProps> = ({ onGridSizeChange }) => {
   }, [debouncedX, debouncedY]);
 
   return (
-    <form className='flex flex-row gap-8 py-8 '>
-      <label className='text-primary-content input input-bordered flex items-center gap-2'>
-        Grid X:{' '}
-        <input className="text-red-600 input input-sm input-bordered w-full max-w-16" type="number" value={x} onChange={(e) => setX(Math.max(1, Number(e.target.value)))} />
+    <form className="flex flex-row gap-8 py-8">
+      <label className="input input-bordered flex items-center gap-2">
+        <span className="label-text">
+          Gap mode {`${gapMode ? "" : "(OFF)"}`}
+        </span>
+        <input
+          type="checkbox"
+          className="toggle toggle-primary"
+          onChange={() => setGapMode(!gapMode)}
+          defaultChecked
+        />
       </label>
-      <label className='text-primary-content input input-bordered flex items-center gap-2'>
-        Grid Y:{' '}
-        <input className="text-red-600 input input-sm input-bordered w-full  max-w-16" value={y} onChange={(e) => setY(Math.max(1, Number(e.target.value)))} />
+      <label className="input input-bordered flex items-center gap-2">
+        Grid X:{" "}
+        <input
+          className="input input-sm input-bordered w-full max-w-16 text-red-600"
+          type="number"
+          value={x}
+          onChange={(e) => setX(Math.max(1, Number(e.target.value)))}
+        />
+      </label>
+      <label className="input input-bordered flex items-center gap-2">
+        Grid Y:{" "}
+        <input
+          className="input input-sm input-bordered w-full max-w-16 text-red-600"
+          type="number"
+          value={y}
+          onChange={(e) => setY(Math.max(1, Number(e.target.value)))}
+        />
       </label>
     </form>
   );
