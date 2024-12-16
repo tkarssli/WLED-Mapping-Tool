@@ -20,13 +20,18 @@ const LEDGrid: React.FC<LEDGridProps> = ({ gridX, gridY, onGridUpdate }) => {
         .map(() =>
           Array(gridX)
             .fill(0)
-            .map(() => ({ enabled: false, index: -1 })),
+            .map(() => ({ enabled: false, index: -1, skipped: false })),
         ),
     );
     setLedCount(0);
   }, [gridX, gridY]);
 
-  const toggleCell = (x: number, y: number, mouseAction: string) => {
+  const toggleCell = (
+    x: number,
+    y: number,
+    mouseAction: string,
+    isShiftKeyPressed: boolean,
+  ) => {
     const newGrid = grid.map((row, rowIndex) =>
       row.map((cell, colIndex) => {
         if (rowIndex === y && colIndex === x) {
@@ -43,6 +48,7 @@ const LEDGrid: React.FC<LEDGridProps> = ({ gridX, gridY, onGridUpdate }) => {
             const removedIndex = cell.index;
             cell.index = -1;
             cell.enabled = false;
+            cell.skipped = false;
             setLedCount((prevLedCount) => prevLedCount - 1);
             // Decrement indices of cells greater than the removed cell
             grid.forEach((row) =>
@@ -64,6 +70,7 @@ const LEDGrid: React.FC<LEDGridProps> = ({ gridX, gridY, onGridUpdate }) => {
             setLedCount((prevLedCount) => {
               cell.index = prevLedCount;
               cell.enabled = true;
+              if (isShiftKeyPressed) cell.skipped = true;
               return prevLedCount + 1;
             });
           }
@@ -91,18 +98,20 @@ const LEDGrid: React.FC<LEDGridProps> = ({ gridX, gridY, onGridUpdate }) => {
             key={`${x}-${y}`}
             onMouseDown={(e) => {
               e.preventDefault();
-              toggleCell(x, y, "mouseDown");
+              toggleCell(x, y, "mouseDown", e.shiftKey);
             }}
             onMouseEnter={(e) => {
               e.preventDefault();
-              e.buttons === 1 && toggleCell(x, y, "mouseEnter");
+              e.buttons === 1 && toggleCell(x, y, "mouseEnter", e.shiftKey);
             }}
             style={{
               cursor: "pointer",
             }}
-            className={`text-s flex h-${smallGrid ? 5 : 10} w-${smallGrid ? 5 : 10} select-none items-center justify-center rounded text-primary-content ${cell.enabled ? "bg-emerald-400" : "bg-gray-400"}`}
+            className={`text-s relative flex h-${smallGrid ? 5 : 10} w-${smallGrid ? 5 : 10} select-none items-center justify-center rounded text-primary-content ${cell.enabled ? (cell.skipped ? "bg-yellow-400" : "bg-emerald-400") : "bg-gray-400"}`}
           >
             {cell.index >= 0 ? cell.index : <></>}{" "}
+            {y === 0 ? <div className="absolute -top-7">{x}</div> : <></>}
+            {x === 0 ? <div className="absolute -left-5">{y}</div> : <></>}
           </div>
         )),
       )}

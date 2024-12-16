@@ -8,6 +8,7 @@ import { themeChange } from "theme-change";
 export interface InitialCellState {
   enabled: boolean;
   index: number;
+  skipped: boolean;
 }
 
 const App: React.FC = () => {
