@@ -4,6 +4,7 @@ import GridSettings from "./GridSettings";
 import LEDGrid from "./LEDGrid";
 import OutputPanel from "./OutputPanel";
 import { themeChange } from "theme-change";
+import PanelManager from "./PanelManager";
 
 export interface InitialCellState {
   enabled: boolean;
@@ -35,14 +36,15 @@ const App: React.FC = () => {
           WLED Mapping Tool
         </h1>
       </div>
+      <PanelManager />
 
-      <GridSettings onGridSizeChange={handleGridSizeChange} />
+      {/* <GridSettings onGridSizeChange={handleGridSizeChange} />
       <LEDGrid
         gridX={gridSize.x}
         gridY={gridSize.y}
         onGridUpdate={setGridState}
       />
-      <OutputPanel grid={gridState} />
+      <OutputPanel grid={gridState} /> */}
 
       <div className="">
         <label className="absolute right-2 top-2 h-6 w-12">
