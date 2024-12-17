@@ -1,36 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Rnd } from "react-rnd";
+import { ArrowLongDownIcon } from "@heroicons/react/16/solid";
 import {
-  ArrowLongDownIcon,
-  ChevronDoubleRightIcon,
-} from "@heroicons/react/16/solid";
+  LedPanelOrientation,
+  LedStartDirectionH,
+  LedStartDirectionV,
+} from "./PanelManager";
+import { ArrowsRightLeftIcon, Bars4Icon } from "@heroicons/react/24/outline";
+import { getPanelStyleData } from "./helpers/getPanelStyleData";
 
 const scaleFactor = 50;
 const hPixelFactor = 1;
 const vPixelFactor = 1;
-const ledPanelDirection = "horizontal";
-// const ledPanelDirection = "vertical";
-const ledStartDirection = "left";
-
-const getPanelDirection = (
-  ledPanelDirection: string,
-  ledStartDirection?: string,
-) => {
-  if (ledStartDirection === "left") {
-  }
-  if (ledPanelDirection === "horizontal") {
-    return {
-      rotation: 0,
-      direction: "left",
-    };
-  }
-  if (ledPanelDirection === "vertical") {
-    return {
-      rotation: 90,
-      direction: "right",
-    };
-  }
-};
 
 const Panel = ({
   id,
@@ -38,6 +19,10 @@ const Panel = ({
   handleDragStart,
   handleDrag,
   isSelected,
+  ledStartDirectionH,
+  ledStartDirectionV,
+  ledPanelOrientation,
+  isSerpentine,
 }: {
   id: string;
   updateBoxes: () => void;
@@ -45,6 +30,10 @@ const Panel = ({
   handleDragStart: () => void;
   handleDrag: () => void;
   isSelected: boolean;
+  ledStartDirectionH: LedStartDirectionH;
+  ledStartDirectionV: LedStartDirectionV;
+  ledPanelOrientation: LedPanelOrientation;
+  isSerpentine: boolean;
 }) => {
   const [size, updateSize] = useState({
     width: scaleFactor * 1,
@@ -58,6 +47,15 @@ const Panel = ({
       y: Math.round(y / scaleFactor) * scaleFactor,
     });
   };
+
+  const panelStyleData = getPanelStyleData(
+    ledStartDirectionH,
+    ledStartDirectionV,
+    ledPanelOrientation,
+    isSerpentine,
+    size.width / scaleFactor,
+    size.height / scaleFactor,
+  );
 
   return (
     <Rnd
@@ -101,22 +99,25 @@ const Panel = ({
         onClick={(e) => {
           e.stopPropagation();
         }}
-        className={`handle mn872 relative flex h-full w-full items-center justify-center gap-1 rounded-md bg-orange-${(((parseInt(id) - 1) % 8) + 1) * 100} ${isSelected ? "border-4 border-secondary" : "border-2 border-primary"}`}
+        className={`handle mn872 relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-md bg-orange-${(((parseInt(id) - 1) % 8) + 1) * 100} ${isSelected ? "border-4 border-secondary" : "border-2 border-primary"}`}
       >
         <div className="font-bold text-secondary-content">{id}</div>
-        <div className="text-secondary-content">{` ${(size.width / scaleFactor) * hPixelFactor}x${(size.height / scaleFactor) * vPixelFactor}`}</div>
-        <ArrowLongDownIcon
-          className={`absolute size-4 rotate-${getPanelDirection(ledPanelDirection)?.rotation} ${getPanelDirection(ledPanelDirection)?.direction}-0 top-0 text-blue-600`}
-        />
-        <ArrowLongDownIcon
-          className={`absolute size-4 rotate-${getPanelDirection(ledPanelDirection)?.rotation} bottom-0 right-0 text-orange-600`}
-        />
-        <ChevronDoubleRightIcon
-          className={`absolute left-0 size-4 text-green-600`}
-        />
-        <ChevronDoubleRightIcon
-          className={`absolute right-0 size-4 text-red-600`}
-        />
+
+        <div className="flex flex-row">
+          <ArrowsRightLeftIcon
+            className={`size-6 ${isSerpentine ? "" : "opacity-15"}`}
+          />
+          <div className="text-secondary-content">{` ${(size.width / scaleFactor) * hPixelFactor}x${(size.height / scaleFactor) * vPixelFactor}`}</div>
+          <ArrowLongDownIcon
+            className={`absolute size-4 ${panelStyleData?.inStartArrow} text-blue-600`}
+          />
+          <ArrowLongDownIcon
+            className={`absolute size-4 ${panelStyleData?.outStartArrow} text-red-600`}
+          />
+          <Bars4Icon
+            className={`size-6 ${ledPanelOrientation === LedPanelOrientation.Horizontal ? "" : "rotate-90"}`}
+          />
+        </div>
       </div>
     </Rnd>
   );
