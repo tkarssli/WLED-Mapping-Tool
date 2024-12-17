@@ -52,7 +52,7 @@ const App: React.FC = () => {
           <input
             type="checkbox"
             className="h-0 w-0 opacity-0"
-            data-toggle-theme="forest,cupcake"
+            data-toggle-theme="light,dark"
           />
           {/* Custom Toggle with SVGs */}
           <span className="btn btn-square btn-outline btn-sm">

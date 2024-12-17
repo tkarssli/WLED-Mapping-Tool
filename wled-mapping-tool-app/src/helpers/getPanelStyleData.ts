@@ -16,8 +16,8 @@ export const getPanelStyleData = (
     ) {
       let rotation =
         ledPanelOrientation === LedPanelOrientation.Horizontal
-          ? "-rotate-90"
-          : "";
+          ? "-rotate-180"
+          : "-rotate-90";
       inStartArrow = `top-0 left-0 ${rotation}`;
       outStartArrow = `bottom-0 right-0 ${rotation}`;
   
@@ -26,12 +26,12 @@ export const getPanelStyleData = (
           ledPanelOrientation === LedPanelOrientation.Horizontal &&
           height % 2 === 0
         )
-          outStartArrow = `bottom-0 left-0 rotate-90`;
+          outStartArrow = `bottom-0 left-0 `;
         if (
           ledPanelOrientation === LedPanelOrientation.Vertical &&
           width % 2 === 0
         )
-          outStartArrow = `top-0 right-0 -rotate-180`;
+          outStartArrow = `top-0 right-0 rotate-90`;
       }
     }
     if (
@@ -39,7 +39,7 @@ export const getPanelStyleData = (
       ledStartDirectionH === LedStartDirectionH.Right
     ) {
       let rotation =
-        ledPanelOrientation === LedPanelOrientation.Horizontal ? "rotate-90" : "";
+        ledPanelOrientation === LedPanelOrientation.Horizontal ? "" : "-rotate-90";
       inStartArrow = `top-0 right-0 ${rotation}`;
       outStartArrow = `bottom-0 left-0 ${rotation}`;
   
@@ -48,12 +48,12 @@ export const getPanelStyleData = (
           ledPanelOrientation === LedPanelOrientation.Horizontal &&
           height % 2 === 0
         )
-          outStartArrow = `bottom-0 right-0 rotate-90`;
+          outStartArrow = `bottom-0 right-0 rotate-180`;
         if (
           ledPanelOrientation === LedPanelOrientation.Vertical &&
           width % 2 === 0
         )
-          outStartArrow = `top-0 left-0 -rotate-180`;
+          outStartArrow = `top-0 left-0 rotate-90`;
       }
     }
     if (
@@ -62,8 +62,8 @@ export const getPanelStyleData = (
     ) {
       let rotation =
         ledPanelOrientation === LedPanelOrientation.Horizontal
-          ? "-rotate-90"
-          : "rotate-180";
+          ? "-rotate-180"
+          : "rotate-90";
       inStartArrow = `bottom-0 left-0 ${rotation}`;
       outStartArrow = `top-0 right-0 ${rotation}`;
   
@@ -72,12 +72,12 @@ export const getPanelStyleData = (
           ledPanelOrientation === LedPanelOrientation.Horizontal &&
           height % 2 === 0
         )
-          outStartArrow = `top-0 left-0 rotate-90`;
+          outStartArrow = `top-0 left-0 `;
         if (
           ledPanelOrientation === LedPanelOrientation.Vertical &&
           width % 2 === 0
         )
-          outStartArrow = `bottom-0 right-0 `;
+          outStartArrow = `bottom-0 right-0 -rotate-90`;
       }
     }
     if (
@@ -86,8 +86,8 @@ export const getPanelStyleData = (
     ) {
       let rotation =
         ledPanelOrientation === LedPanelOrientation.Horizontal
-          ? "rotate-90"
-          : "rotate-180";
+          ? ""
+          : "rotate-90";
       inStartArrow = `bottom-0 right-0 ${rotation}`;
       outStartArrow = `top-0 left-0 ${rotation}`;
   
@@ -96,12 +96,12 @@ export const getPanelStyleData = (
           ledPanelOrientation === LedPanelOrientation.Horizontal &&
           height % 2 === 0
         )
-          outStartArrow = `top-0 right-0 -rotate-90`;
+          outStartArrow = `top-0 right-0 -rotate-180`;
         if (
           ledPanelOrientation === LedPanelOrientation.Vertical &&
           width % 2 === 0
         )
-          outStartArrow = `bottom-0 left-0 `;
+          outStartArrow = `bottom-0 left-0 -rotate-90`;
       }
     }
     return {

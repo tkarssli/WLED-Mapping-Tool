@@ -1,15 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Panel from "./Panel";
 import {
-  ArrowDownIcon,
   ArrowLeftIcon,
   ArrowsRightLeftIcon,
   ArrowsUpDownIcon,
-  ArrowTurnUpRightIcon,
   ArrowUturnUpIcon,
   ArrowUpIcon,
   ArrowUturnRightIcon,
 } from "@heroicons/react/24/outline";
+import { MinusIcon, PlusIcon } from "@heroicons/react/16/solid";
 
 export interface Box {
   id: string;
@@ -41,7 +40,6 @@ const defaultLedStartDirectionH = LedStartDirectionH.Left;
 const defaultLedPanelOrientation = LedPanelOrientation.Horizontal;
 const defaultSerpentineState = true;
 
-// This will handle our overlap calculations
 function haveIntersection(other, main) {
   const isIntersection = !(
     main.x >= other.x + other.width ||
@@ -57,6 +55,22 @@ const PanelManager = () => {
   const [isCollision, setIsCollision] = useState(false);
   const [safePoint, setSafePoint] = useState({ x: 0, y: 0 });
   const [selectedBox, setSelectedBox] = useState(null);
+  const [gridFactorX, setGridFactorX] = useState(1);
+  const [gridFactorY, setGridFactorY] = useState(1);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Delete" || event.key === "Backspace") {
+        removePanelHandler();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedBox]);
 
   const addPanelHandler = () => {
     // Get largest number from boxes
@@ -273,12 +287,54 @@ I call this function from Rnd component during "onDrag" event. It should work fo
         </div>
         <div className="tooltip tooltip-right" data-tip="Toggle serpentine">
           <button
-            className="btn btn-square disabled btn-outline rounded-md"
+            className="btn btn-square btn-outline rounded-md"
             onClick={() => toggleSerpentineState(selectedBox)}
             disabled={!selectedBox}
           >
             <ArrowsRightLeftIcon className="size-6" />
           </button>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-1 rounded-lg border p-2">
+          <div className="flex flex-row gap-2">
+            <button
+              className="btn btn-outline btn-xs rounded-md"
+              onClick={() => setGridFactorX(gridFactorX + 1)}
+            >
+              <PlusIcon className="size-3" />
+            </button>
+            <button
+              className="btn btn-outline btn-xs rounded-md"
+              onClick={() =>
+                setGridFactorX(gridFactorX - 1 ? gridFactorX - 1 : 1)
+              }
+            >
+              <MinusIcon className="size-3" />
+            </button>
+          </div>
+          <div className="whitespace-nowrap text-xs font-bold">
+            X Factor: {`${gridFactorX}`}*
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-1 rounded-lg border p-2">
+          <div className="flex flex-row gap-2">
+            <button
+              className="btn btn-outline btn-xs rounded-md"
+              onClick={() => setGridFactorY(gridFactorY + 1)}
+            >
+              <PlusIcon className="size-3" />
+            </button>
+            <button
+              className="btn btn-outline btn-xs rounded-md"
+              onClick={() =>
+                setGridFactorY(gridFactorY - 1 ? gridFactorY - 1 : 1)
+              }
+            >
+              <MinusIcon className="size-3" />
+            </button>
+          </div>
+          <div className="whitespace-nowrap text-xs font-bold">
+            Y Factor: {`${gridFactorY}`}*
+          </div>
         </div>
       </div>
       <div
@@ -297,6 +353,8 @@ I call this function from Rnd component during "onDrag" event. It should work fo
             ledStartDirectionV={boxes[id].ledStartDirectionV}
             ledPanelOrientation={boxes[id].ledPanelOrientation}
             isSerpentine={boxes[id].serpentineState}
+            gridFactorX={gridFactorX}
+            gridFactorY={gridFactorY}
           />
         ))}
       </div>

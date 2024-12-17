@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Rnd } from "react-rnd";
-import { ArrowLongDownIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowLeftEndOnRectangleIcon,
+  ArrowLeftStartOnRectangleIcon,
+} from "@heroicons/react/16/solid";
 import {
   LedPanelOrientation,
   LedStartDirectionH,
@@ -8,6 +11,18 @@ import {
 } from "./PanelManager";
 import { ArrowsRightLeftIcon, Bars4Icon } from "@heroicons/react/24/outline";
 import { getPanelStyleData } from "./helpers/getPanelStyleData";
+
+const hueList = [
+  "hue-rotate-15",
+  "hue-rotate-30",
+  "hue-rotate-60",
+  "hue-rotate-90",
+  "hue-rotate-180",
+  "-hue-rotate-90",
+  "-hue-rotate-60",
+  "-hue-rotate-30",
+  "-hue-rotate-15",
+];
 
 const scaleFactor = 50;
 const hPixelFactor = 1;
@@ -23,6 +38,8 @@ const Panel = ({
   ledStartDirectionV,
   ledPanelOrientation,
   isSerpentine,
+  gridFactorX,
+  gridFactorY,
 }: {
   id: string;
   updateBoxes: () => void;
@@ -34,10 +51,12 @@ const Panel = ({
   ledStartDirectionV: LedStartDirectionV;
   ledPanelOrientation: LedPanelOrientation;
   isSerpentine: boolean;
+  gridFactorX: number;
+  gridFactorY: number;
 }) => {
   const [size, updateSize] = useState({
-    width: scaleFactor * 1,
-    height: scaleFactor * 1,
+    width: scaleFactor * 2,
+    height: scaleFactor * 2,
   });
   const [position, updatePosition] = useState({ x: 0, y: 0 });
 
@@ -91,27 +110,27 @@ const Panel = ({
       default={{
         x: 0,
         y: 0,
-        width: scaleFactor,
-        height: scaleFactor,
+        width: scaleFactor * 2,
+        height: scaleFactor * 2,
       }}
     >
       <div
         onClick={(e) => {
           e.stopPropagation();
         }}
-        className={`handle mn872 relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-md bg-orange-${(((parseInt(id) - 1) % 8) + 1) * 100} ${isSelected ? "border-4 border-secondary" : "border-2 border-primary"}`}
+        className={`handle mn872 relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-md bg-primary-content ${hueList[(parseInt(id) - 1) % 8]} ${isSelected ? "border-4 border-secondary" : "border-2 border-primary"}`}
       >
-        <div className="font-bold text-secondary-content">{id}</div>
+        <div className="font-bold">{id}</div>
 
         <div className="flex flex-row">
           <ArrowsRightLeftIcon
             className={`size-6 ${isSerpentine ? "" : "opacity-15"}`}
           />
-          <div className="text-secondary-content">{` ${(size.width / scaleFactor) * hPixelFactor}x${(size.height / scaleFactor) * vPixelFactor}`}</div>
-          <ArrowLongDownIcon
+          <div className="">{` ${(size.width / scaleFactor) * gridFactorX}x${(size.height / scaleFactor) * gridFactorY}`}</div>
+          <ArrowLeftEndOnRectangleIcon
             className={`absolute size-4 ${panelStyleData?.inStartArrow} text-blue-600`}
           />
-          <ArrowLongDownIcon
+          <ArrowLeftStartOnRectangleIcon
             className={`absolute size-4 ${panelStyleData?.outStartArrow} text-red-600`}
           />
           <Bars4Icon
@@ -121,21 +140,6 @@ const Panel = ({
       </div>
     </Rnd>
   );
-};
-
-export const test = {
-  // Programatically used tailwind classes that would get pruned on build
-  safelist: [
-    "bg-orange-100",
-    "bg-orange-200",
-    "bg-orange-300",
-    "bg-orange-400",
-    "bg-orange-500",
-    "bg-orange-600",
-    "bg-orange-700",
-    "bg-orange-800",
-  ],
-  //
 };
 
 export default Panel;
