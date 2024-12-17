@@ -29,32 +29,50 @@ function haveIntersection(other, main) {
 }
 
 const PanelManager = () => {
-  const [boxes, setBoxes] = useState([] as string[]);
+  const [boxes, setBoxes] = useState({});
   const [isCollision, setIsCollision] = useState(false);
   const [safePoint, setSafePoint] = useState({ x: 0, y: 0 });
   const [selectedBox, setSelectedBox] = useState(null);
 
   const addPanelHandler = () => {
-    const newBox = boxes.reduce((acc, box) => (acc > box ? acc : box), 0) + 1;
-    const newBoxes = [...boxes, newBox];
-    setBoxes(newBoxes);
+    // Get largest number from boxes
+    const newId =
+      Math.max(...Object.keys(boxes).map((id) => parseInt(id)), 0) + 1;
+    setBoxes((prevBoxes) => ({
+      ...prevBoxes,
+      [newId]: { x: 0, y: 0 },
+    }));
+  };
+
+  const removePanelHandler = () => {
+    if (selectedBox) {
+      setBoxes((prevBoxes) => {
+        const newBoxes = { ...prevBoxes };
+        delete newBoxes[selectedBox];
+        return newBoxes;
+      });
+      setSelectedBox(null);
+    }
   };
 
   const handleOverlap = (node, xy) => {
     const main = node?.querySelector(".mn872"); // current dragged or resized node
     const targetRect = main?.getBoundingClientRect();
-    [...document.querySelectorAll(".mn872")].some((group) => {
-      if (group === main) return; // continue with a loop if the current element is inside the group
-      if (haveIntersection(group.getBoundingClientRect(), targetRect)) {
-        console.log("isCollision");
-        setIsCollision(true);
-        return true; // current element is overlapping - stop loop
-      }
-      console.log(xy);
+    const hasOverlaps = [...document.querySelectorAll(".mn872")].some(
+      (group) => {
+        if (group === main) return; // continue with a loop if the current element is inside the group
+        if (haveIntersection(group.getBoundingClientRect(), targetRect)) {
+          return true; // current element is overlapping - stop loop
+        }
+        return; // continue with a loop - current element is NOT overlapping
+      },
+    );
+    if (hasOverlaps) {
+      setIsCollision(true);
+    } else {
       setIsCollision(false);
       setSafePoint(xy); // remove this line if you want to snap to initial position
-      return; // continue with a loop - current element is NOT overlapping
-    });
+    }
   };
 
   const handleDragStart = (e, { x, y }, id, lastPos) => {
@@ -71,29 +89,72 @@ I call this function from Rnd component during "onDrag" event. It should work fo
 
   const handleDragStop = (e, data, updatePosition) => {
     if (isCollision) {
-      console.log("isCollision");
       updatePosition(safePoint);
       setIsCollision(false);
       return;
     }
-    console.log("isNotCollision");
-    console.log({ x: data.x, y: data.y });
     updatePosition({ x: data.x, y: data.y });
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center">
-      <button className="btn btn-primary w-60" onClick={addPanelHandler}>
-        Add Panel
-      </button>
-      <div className="h-3/4 w-8/12 rounded-lg border">
-        {Object.values(boxes).map((box, index) => (
+    <div
+      className="flex h-full w-full flex-row"
+      onClick={() => setSelectedBox(null)}
+    >
+      <div className="flex flex-col gap-4 p-8">
+        <div className="tooltip tooltip-right" data-tip="Add a new panel">
+          <button
+            className="btn btn-square btn-outline rounded-md"
+            onClick={addPanelHandler}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className="tooltip tooltip-right" data-tip="Remove selected panel">
+          <button
+            className="btn btn-square disabled btn-outline rounded-md"
+            onClick={removePanelHandler}
+            disabled={!selectedBox}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div className="m-4 h-full w-full rounded-lg border">
+        {Object.keys(boxes).map((id, index) => (
           <Panel
-            id={box}
+            id={id}
+            key={id}
             handleDragStart={handleDragStart}
             handleDrag={handleDrag}
             handleDragStop={handleDragStop}
-            isSelected={selectedBox === box}
+            isSelected={selectedBox === id}
           />
         ))}
       </div>
