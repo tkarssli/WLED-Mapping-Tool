@@ -57,6 +57,7 @@ const PanelManager = () => {
   const [selectedBox, setSelectedBox] = useState(null);
   const [gridFactorX, setGridFactorX] = useState(1);
   const [gridFactorY, setGridFactorY] = useState(1);
+  const [boundingRect, setBoundingRect] = useState({});
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -99,6 +100,31 @@ const PanelManager = () => {
       setSelectedBox(null);
     }
   };
+  useEffect(() => {
+    updateBoundingRect();
+  }, [boxes]);
+
+  const updateBoundingRect = () => {
+    const allRects = Object.keys(boxes).map((id) => {
+      const element = document.getElementById(id);
+      return element?.getBoundingClientRect();
+    });
+
+    if (allRects.length === 0) return;
+
+    const minX = Math.min(...allRects.map((rect) => rect.left));
+    const minY = Math.min(...allRects.map((rect) => rect.top));
+    const maxX = Math.max(...allRects.map((rect) => rect.right));
+    const maxY = Math.max(...allRects.map((rect) => rect.bottom));
+
+    console.log({ minX, minY, maxX, maxY });
+    setBoundingRect({
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    });
+  };
 
   const handleOverlap = (node, xy) => {
     const main = node?.querySelector(".mn872"); // current dragged or resized node
@@ -129,6 +155,7 @@ const PanelManager = () => {
 On the other hand, we need to have correct values. Try it without timeout and you will see.
 I call this function from Rnd component during "onDrag" event. It should work for other events too. */
   const handleDrag = (e, { node, x, y }) => {
+    // getBoundingRect(node, { x, y });
     setTimeout(() => handleOverlap(node, { x, y }), 1);
   };
 
@@ -139,8 +166,17 @@ I call this function from Rnd component during "onDrag" event. It should work fo
       return;
     }
     updatePosition({ x: data.x, y: data.y });
+    updateBoundingRect();
+    // getBoundingRect(null, { x: data.x, y: data.y });
   };
-  console.log(boxes);
+
+  const handleResize = (e, direction, ref, delta, position) => {
+    // getBoundingRect(ref, position);
+  };
+
+  const handleResizeStop = (e, direction, ref, delta, position) => {
+    // getBoundingRect(ref, position);
+  };
 
   const toggleStartDirectionH = (id: number | null) => {
     if (!id) return;
@@ -348,6 +384,8 @@ I call this function from Rnd component during "onDrag" event. It should work fo
             handleDragStart={handleDragStart}
             handleDrag={handleDrag}
             handleDragStop={handleDragStop}
+            handleResize={handleResize}
+            handleResizeStop={handleResizeStop}
             isSelected={selectedBox === id}
             ledStartDirectionH={boxes[id].ledStartDirectionH}
             ledStartDirectionV={boxes[id].ledStartDirectionV}
@@ -358,6 +396,15 @@ I call this function from Rnd component during "onDrag" event. It should work fo
           />
         ))}
       </div>
+      <div
+        className="pointer-events-none absolute border"
+        style={{
+          left: boundingRect.x,
+          top: boundingRect.y,
+          width: boundingRect.width,
+          height: boundingRect.height,
+        }}
+      />
     </div>
   );
 };

@@ -33,6 +33,8 @@ const Panel = ({
   handleDragStop,
   handleDragStart,
   handleDrag,
+  handleResize,
+  handleResizeStop,
   isSelected,
   ledStartDirectionH,
   ledStartDirectionV,
@@ -46,6 +48,8 @@ const Panel = ({
   handleDragStop: () => void;
   handleDragStart: () => void;
   handleDrag: () => void;
+  handleResize: () => void;
+  handleResizeStop: () => void;
   isSelected: boolean;
   ledStartDirectionH: LedStartDirectionH;
   ledStartDirectionV: LedStartDirectionV;
@@ -78,6 +82,7 @@ const Panel = ({
 
   return (
     <Rnd
+      id={id}
       className={``}
       dragGrid={[scaleFactor, scaleFactor]}
       resizeGrid={[scaleFactor, scaleFactor]}
@@ -99,6 +104,7 @@ const Panel = ({
           height: parseInt(ref.style.height),
         });
         handlePositionUpdate(position);
+        handleResize();
       }}
       onResizeStop={(e, direction, ref, delta, position) => {
         updateSize({
@@ -106,6 +112,7 @@ const Panel = ({
           height: parseInt(ref.style.height),
         });
         handlePositionUpdate(position);
+        handleResizeStop();
       }}
       default={{
         x: 0,
