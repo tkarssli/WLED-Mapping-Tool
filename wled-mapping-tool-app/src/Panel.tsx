@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Rnd } from "react-rnd";
+import { DraggableData, Position, Rnd, RndDragEvent } from "react-rnd";
 import {
   ArrowLeftEndOnRectangleIcon,
   ArrowLeftStartOnRectangleIcon,
@@ -11,6 +11,7 @@ import {
 } from "./PanelManager";
 import { ArrowsRightLeftIcon, Bars4Icon } from "@heroicons/react/24/outline";
 import { getPanelStyleData } from "./helpers/getPanelStyleData";
+import { ResizeDirection } from "re-resizable";
 
 const hueList = [
   "hue-rotate-15",
@@ -23,10 +24,6 @@ const hueList = [
   "-hue-rotate-30",
   "-hue-rotate-15",
 ];
-
-const scaleFactor = 50;
-const hPixelFactor = 1;
-const vPixelFactor = 1;
 
 const Panel = ({
   id,
@@ -42,14 +39,41 @@ const Panel = ({
   isSerpentine,
   gridFactorX,
   gridFactorY,
+  scaleFactor,
 }: {
   id: string;
-  updateBoxes: () => void;
-  handleDragStop: () => void;
-  handleDragStart: () => void;
-  handleDrag: () => void;
-  handleResize: () => void;
-  handleResizeStop: () => void;
+  handleDragStop: (
+    e: RndDragEvent,
+    data: DraggableData,
+    updatePosition: (data: Position) => void,
+  ) => void;
+  handleDragStart: (
+    e: RndDragEvent,
+    data: DraggableData,
+    id: string,
+    lastPos: Position,
+  ) => void;
+  handleDrag: (e: RndDragEvent, { node, x, y }: DraggableData) => void;
+  handleResize: (
+    e: MouseEvent | TouchEvent,
+    direction: ResizeDirection,
+    ref: HTMLElement,
+    delta: {
+      height: number;
+      width: number;
+    },
+    position: Position,
+  ) => void;
+  handleResizeStop: (
+    e: MouseEvent | TouchEvent,
+    direction: ResizeDirection,
+    ref: HTMLElement,
+    delta: {
+      height: number;
+      width: number;
+    },
+    position: Position,
+  ) => void;
   isSelected: boolean;
   ledStartDirectionH: LedStartDirectionH;
   ledStartDirectionV: LedStartDirectionV;
@@ -57,6 +81,7 @@ const Panel = ({
   isSerpentine: boolean;
   gridFactorX: number;
   gridFactorY: number;
+  scaleFactor: number;
 }) => {
   const [size, updateSize] = useState({
     width: scaleFactor * 2,
@@ -64,7 +89,7 @@ const Panel = ({
   });
   const [position, updatePosition] = useState({ x: 0, y: 0 });
 
-  const handlePositionUpdate = ({ x, y }: { x: number; y: number }) => {
+  const handlePositionUpdate = ({ x, y }: Position) => {
     updatePosition({
       x: Math.round(x / scaleFactor) * scaleFactor,
       y: Math.round(y / scaleFactor) * scaleFactor,
@@ -104,7 +129,7 @@ const Panel = ({
           height: parseInt(ref.style.height),
         });
         handlePositionUpdate(position);
-        handleResize();
+        handleResize(e, direction, ref, delta, position);
       }}
       onResizeStop={(e, direction, ref, delta, position) => {
         updateSize({
@@ -112,7 +137,7 @@ const Panel = ({
           height: parseInt(ref.style.height),
         });
         handlePositionUpdate(position);
-        handleResizeStop();
+        handleResizeStop(e, direction, ref, delta, position);
       }}
       default={{
         x: 0,

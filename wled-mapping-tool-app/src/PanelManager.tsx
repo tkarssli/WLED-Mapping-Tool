@@ -9,6 +9,8 @@ import {
   ArrowUturnRightIcon,
 } from "@heroicons/react/24/outline";
 import { MinusIcon, PlusIcon } from "@heroicons/react/16/solid";
+import { RndDragEvent, DraggableData, Position } from "react-rnd";
+import { ResizeDirection } from "re-resizable";
 
 export interface Box {
   id: string;
@@ -40,24 +42,17 @@ const defaultLedStartDirectionH = LedStartDirectionH.Left;
 const defaultLedPanelOrientation = LedPanelOrientation.Horizontal;
 const defaultSerpentineState = true;
 
-function haveIntersection(other, main) {
-  const isIntersection = !(
-    main.x >= other.x + other.width ||
-    main.x + main.width <= other.x ||
-    main.y >= other.y + other.height ||
-    main.y + main.height <= other.y
-  );
-  return isIntersection;
-}
-
 const PanelManager = () => {
   const [boxes, setBoxes] = useState({} as Record<string, Box>);
   const [isCollision, setIsCollision] = useState(false);
   const [safePoint, setSafePoint] = useState({ x: 0, y: 0 });
-  const [selectedBox, setSelectedBox] = useState(null);
+  const [selectedBox, setSelectedBox] = useState<null | string>(null);
   const [gridFactorX, setGridFactorX] = useState(1);
   const [gridFactorY, setGridFactorY] = useState(1);
-  const [boundingRect, setBoundingRect] = useState({});
+  const [boundingRect, setBoundingRect] = useState(
+    {} as { x: number; y: number; width: number; height: number },
+  );
+  const [scaleFactor, setScaleFactor] = useState(50);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -112,12 +107,19 @@ const PanelManager = () => {
 
     if (allRects.length === 0) return;
 
-    const minX = Math.min(...allRects.map((rect) => rect.left));
-    const minY = Math.min(...allRects.map((rect) => rect.top));
-    const maxX = Math.max(...allRects.map((rect) => rect.right));
-    const maxY = Math.max(...allRects.map((rect) => rect.bottom));
+    const minX = Math.min(
+      ...allRects.map((rect) => (rect ? rect.left : Infinity)),
+    );
+    const minY = Math.min(
+      ...allRects.map((rect) => (rect ? rect.top : Infinity)),
+    );
+    const maxX = Math.max(
+      ...allRects.map((rect) => (rect ? rect.right : Infinity)),
+    );
+    const maxY = Math.max(
+      ...allRects.map((rect) => (rect ? rect.bottom : Infinity)),
+    );
 
-    console.log({ minX, minY, maxX, maxY });
     setBoundingRect({
       x: minX,
       y: minY,
@@ -126,13 +128,16 @@ const PanelManager = () => {
     });
   };
 
-  const handleOverlap = (node, xy) => {
+  const handleOverlap = (node: HTMLElement, xy: Position) => {
     const main = node?.querySelector(".mn872"); // current dragged or resized node
     const targetRect = main?.getBoundingClientRect();
     const hasOverlaps = [...document.querySelectorAll(".mn872")].some(
       (group) => {
         if (group === main) return; // continue with a loop if the current element is inside the group
-        if (haveIntersection(group.getBoundingClientRect(), targetRect)) {
+        if (
+          targetRect &&
+          haveIntersection(group.getBoundingClientRect(), targetRect)
+        ) {
           return true; // current element is overlapping - stop loop
         }
         return; // continue with a loop - current element is NOT overlapping
@@ -146,7 +151,12 @@ const PanelManager = () => {
     }
   };
 
-  const handleDragStart = (e, { x, y }, id, lastPos) => {
+  const handleDragStart = (
+    e: RndDragEvent,
+    data: DraggableData,
+    id: string,
+    lastPos: Position,
+  ) => {
     setSafePoint(lastPos);
     setSelectedBox(id);
   };
@@ -154,12 +164,15 @@ const PanelManager = () => {
   /* We use 1ms timeout as browser needs a tiny bit of time to have everything in sync.
 On the other hand, we need to have correct values. Try it without timeout and you will see.
 I call this function from Rnd component during "onDrag" event. It should work for other events too. */
-  const handleDrag = (e, { node, x, y }) => {
-    // getBoundingRect(node, { x, y });
+  const handleDrag = (e: RndDragEvent, { node, x, y }: DraggableData) => {
     setTimeout(() => handleOverlap(node, { x, y }), 1);
   };
 
-  const handleDragStop = (e, data, updatePosition) => {
+  const handleDragStop = (
+    e: RndDragEvent,
+    data: DraggableData,
+    updatePosition: (data: Position) => void,
+  ) => {
     if (isCollision) {
       updatePosition(safePoint);
       setIsCollision(false);
@@ -167,18 +180,33 @@ I call this function from Rnd component during "onDrag" event. It should work fo
     }
     updatePosition({ x: data.x, y: data.y });
     updateBoundingRect();
-    // getBoundingRect(null, { x: data.x, y: data.y });
   };
 
-  const handleResize = (e, direction, ref, delta, position) => {
-    // getBoundingRect(ref, position);
+  const handleResize = (
+    e: MouseEvent | TouchEvent,
+    direction: ResizeDirection,
+    ref: HTMLElement,
+    delta: {
+      height: number;
+      width: number;
+    },
+    position: Position,
+  ) => {};
+
+  const handleResizeStop = (
+    e: MouseEvent | TouchEvent,
+    direction: ResizeDirection,
+    ref: HTMLElement,
+    delta: {
+      height: number;
+      width: number;
+    },
+    position: Position,
+  ) => {
+    updateBoundingRect();
   };
 
-  const handleResizeStop = (e, direction, ref, delta, position) => {
-    // getBoundingRect(ref, position);
-  };
-
-  const toggleStartDirectionH = (id: number | null) => {
+  const toggleStartDirectionH = (id: string | null) => {
     if (!id) return;
     setBoxes((prevBoxes) => ({
       ...prevBoxes,
@@ -192,7 +220,7 @@ I call this function from Rnd component during "onDrag" event. It should work fo
     }));
   };
 
-  const toggleStartDirectionV = (id: number | null) => {
+  const toggleStartDirectionV = (id: string | null) => {
     if (!id) return;
     setBoxes((prevBoxes) => ({
       ...prevBoxes,
@@ -206,7 +234,7 @@ I call this function from Rnd component during "onDrag" event. It should work fo
     }));
   };
 
-  const togglePanelOrientation = (id: number | null) => {
+  const togglePanelOrientation = (id: string | null) => {
     if (!id) return;
     setBoxes((prevBoxes) => ({
       ...prevBoxes,
@@ -219,7 +247,7 @@ I call this function from Rnd component during "onDrag" event. It should work fo
       },
     }));
   };
-  const toggleSerpentineState = (id: number | null) => {
+  const toggleSerpentineState = (id: string | null) => {
     if (!id) return;
     setBoxes((prevBoxes) => ({
       ...prevBoxes,
@@ -393,11 +421,12 @@ I call this function from Rnd component during "onDrag" event. It should work fo
             isSerpentine={boxes[id].serpentineState}
             gridFactorX={gridFactorX}
             gridFactorY={gridFactorY}
+            scaleFactor={scaleFactor}
           />
         ))}
       </div>
       <div
-        className="pointer-events-none absolute border"
+        className={`pointer-events-none absolute rounded border-2 border-primary ${Object.values(boxes).length < 2 ? "hidden" : ""}`}
         style={{
           left: boundingRect.x,
           top: boundingRect.y,
@@ -405,8 +434,29 @@ I call this function from Rnd component during "onDrag" event. It should work fo
           height: boundingRect.height,
         }}
       />
+      <div className="bold absolute left-12 top-8 rounded-lg border bg-primary p-4 font-bold text-primary-content">{`True LED count: ${getTotalLeds(boundingRect, scaleFactor, gridFactorX, gridFactorY)}`}</div>
     </div>
   );
 };
-
 export default PanelManager;
+
+const getTotalLeds = (
+  boundingRect: any,
+  scaleFactor: number,
+  gridFactorX: number,
+  gridFactorY: number,
+) => {
+  const xWidth = ((boundingRect.width ?? 0) / scaleFactor) * gridFactorX;
+  const yWidth = ((boundingRect.height ?? 0) / scaleFactor) * gridFactorY;
+  return xWidth * yWidth;
+};
+
+function haveIntersection(other: DOMRect, main: DOMRect) {
+  const isIntersection = !(
+    main.x >= other.x + other.width ||
+    main.x + main.width <= other.x ||
+    main.y >= other.y + other.height ||
+    main.y + main.height <= other.y
+  );
+  return isIntersection;
+}
