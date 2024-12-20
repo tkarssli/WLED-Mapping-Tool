@@ -9,7 +9,7 @@ interface LEDGridProps {
 
 const LEDGrid: React.FC<LEDGridProps> = ({ gridX, gridY, onGridUpdate }) => {
   const [grid, setGrid] = useState<InitialCellState[][]>([]);
-  const [ledCount, setLedCount] = useState(0);
+  const [_ledCount, setLedCount] = useState(0);
 
   const mouseState = useRef({ action: "" });
 
