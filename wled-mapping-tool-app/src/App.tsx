@@ -1,8 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
-import GridSettings from "./GridSettings";
-import LEDGrid from "./LEDGrid";
-import OutputPanel from "./OutputPanel";
 import { themeChange } from "theme-change";
 import PanelManager from "./PanelManager";
 
@@ -13,18 +10,10 @@ export interface InitialCellState {
 }
 
 const App: React.FC = () => {
-  const [gridSize, setGridSize] = useState({ x: 5, y: 5 });
-  const [gridState, setGridState] = useState<InitialCellState[][]>([]);
-
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project
   }, []);
-
-  const handleGridSizeChange = (x: number, y: number) => {
-    setGridSize({ x, y });
-    setGridState([]);
-  };
 
   return (
     <div className="app relative flex h-screen flex-col items-center">
