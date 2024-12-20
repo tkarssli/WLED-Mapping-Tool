@@ -52,7 +52,7 @@ const PanelManager = () => {
   const [boundingRect, setBoundingRect] = useState(
     {} as { x: number; y: number; width: number; height: number },
   );
-  const [scaleFactor, setScaleFactor] = useState(50);
+  const [scaleFactor, _setScaleFactor] = useState(50);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -152,8 +152,8 @@ const PanelManager = () => {
   };
 
   const handleDragStart = (
-    e: RndDragEvent,
-    data: DraggableData,
+    _e: RndDragEvent,
+    _data: DraggableData,
     id: string,
     lastPos: Position,
   ) => {
@@ -164,12 +164,12 @@ const PanelManager = () => {
   /* We use 1ms timeout as browser needs a tiny bit of time to have everything in sync.
 On the other hand, we need to have correct values. Try it without timeout and you will see.
 I call this function from Rnd component during "onDrag" event. It should work for other events too. */
-  const handleDrag = (e: RndDragEvent, { node, x, y }: DraggableData) => {
+  const handleDrag = (_e: RndDragEvent, { node, x, y }: DraggableData) => {
     setTimeout(() => handleOverlap(node, { x, y }), 1);
   };
 
   const handleDragStop = (
-    e: RndDragEvent,
+    _e: RndDragEvent,
     data: DraggableData,
     updatePosition: (data: Position) => void,
   ) => {
@@ -183,25 +183,25 @@ I call this function from Rnd component during "onDrag" event. It should work fo
   };
 
   const handleResize = (
-    e: MouseEvent | TouchEvent,
-    direction: ResizeDirection,
-    ref: HTMLElement,
-    delta: {
+    _e: MouseEvent | TouchEvent,
+    _direction: ResizeDirection,
+    _ref: HTMLElement,
+    _delta: {
       height: number;
       width: number;
     },
-    position: Position,
+    _position: Position,
   ) => {};
 
   const handleResizeStop = (
-    e: MouseEvent | TouchEvent,
-    direction: ResizeDirection,
-    ref: HTMLElement,
-    delta: {
+    _e: MouseEvent | TouchEvent,
+    _direction: ResizeDirection,
+    _ref: HTMLElement,
+    _delta: {
       height: number;
       width: number;
     },
-    position: Position,
+    _position: Position,
   ) => {
     updateBoundingRect();
   };
@@ -405,7 +405,7 @@ I call this function from Rnd component during "onDrag" event. It should work fo
         onClick={() => setSelectedBox(null)}
         className="m-4 h-full w-full rounded-lg border"
       >
-        {Object.keys(boxes).map((id, index) => (
+        {Object.keys(boxes).map((id, _index) => (
           <Panel
             id={id}
             key={id}
