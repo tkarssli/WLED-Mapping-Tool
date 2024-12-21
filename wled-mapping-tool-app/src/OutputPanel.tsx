@@ -1,9 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { InitialCellState } from "./App";
 import "./OutputPanel.css";
-import CodeBlock from "./CodeBlock";
 import {
-  Box,
   LedPanelOrientation,
   LedStartDirectionH,
   LedStartDirectionV,
