@@ -7,10 +7,12 @@ import {
   ArrowUturnUpIcon,
   ArrowUpIcon,
   ArrowUturnRightIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/react/24/outline";
 import { MinusIcon, PlusIcon } from "@heroicons/react/16/solid";
 import { RndDragEvent, DraggableData, Position } from "react-rnd";
 import { ResizeDirection } from "re-resizable";
+import OutputPanel, { BoxData } from "./OutputPanel";
 
 export interface Box {
   id: string;
@@ -20,6 +22,8 @@ export interface Box {
   ledStartDirectionV: LedStartDirectionV;
   ledPanelOrientation: LedPanelOrientation;
   serpentineState: boolean;
+  startWidth?: number;
+  startHeight?: number;
 }
 
 export enum LedStartDirectionV {
@@ -53,7 +57,6 @@ const PanelManager = () => {
     {} as { x: number; y: number; width: number; height: number },
   );
   const [scaleFactor, _setScaleFactor] = useState(50);
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
@@ -81,6 +84,8 @@ const PanelManager = () => {
         ledStartDirectionH: defaultLedStartDirectionH,
         ledPanelOrientation: defaultLedPanelOrientation,
         serpentineState: defaultSerpentineState,
+        startWidth: 100,
+        startHeight: 100,
       },
     }));
   };
@@ -95,8 +100,11 @@ const PanelManager = () => {
       setSelectedBox(null);
     }
   };
+
   useEffect(() => {
-    updateBoundingRect();
+    setTimeout(() => {
+      updateBoundingRect();
+    }, 100);
   }, [boxes]);
 
   const updateBoundingRect = () => {
@@ -172,12 +180,30 @@ I call this function from Rnd component during "onDrag" event. It should work fo
     _e: RndDragEvent,
     data: DraggableData,
     updatePosition: (data: Position) => void,
+    id: string,
   ) => {
     if (isCollision) {
+      setBoxes((prevBoxes) => ({
+        ...prevBoxes,
+        [id]: {
+          ...prevBoxes[id],
+          x: safePoint.x,
+          y: safePoint.y,
+        },
+      }));
       updatePosition(safePoint);
       setIsCollision(false);
       return;
     }
+
+    setBoxes((prevBoxes) => ({
+      ...prevBoxes,
+      [id]: {
+        ...prevBoxes[id],
+        x: data.x,
+        y: data.y,
+      },
+    }));
     updatePosition({ x: data.x, y: data.y });
     updateBoundingRect();
   };
@@ -256,6 +282,65 @@ I call this function from Rnd component during "onDrag" event. It should work fo
         serpentineState: !prevBoxes[id].serpentineState,
       },
     }));
+  };
+
+  const loadPanels = (panels: BoxData[]) => {
+    // Find the largest grid factor that would make all panels fit
+    let { gcdX, gcdY } = findLargestGridFactor(panels);
+    if (gcdX >= 20 && gcdY >= 20 && gcdX % 4 === 0 && gcdY % 4 === 0) {
+      gcdX = gcdX / 4;
+      gcdY = gcdY / 4;
+    } else if (gcdX >= 10 && gcdY >= 10 && gcdX % 2 === 0 && gcdY % 2 === 0) {
+      gcdX = gcdX / 2;
+      gcdY = gcdY / 2;
+    }
+    setGridFactorX(gcdX);
+    setGridFactorY(gcdY);
+
+    let newPanels = {} as Record<string, Box>;
+
+    panels.forEach((panel, index) => {
+      const newId = (index + 1).toString();
+      newPanels[newId] = {
+        id: newId,
+        x: (panel.x * scaleFactor) / gcdX,
+        y: (panel.y * scaleFactor) / gcdY,
+        ledStartDirectionV: panel.ledStartDirectionV,
+        ledStartDirectionH: panel.ledStartDirectionH,
+        ledPanelOrientation: panel.ledPanelOrientation,
+        serpentineState: panel.serpentineState,
+        startWidth: (panel.width * scaleFactor) / gcdX,
+        startHeight: (panel.height * scaleFactor) / gcdY,
+      };
+    });
+
+    setBoxes(newPanels);
+  };
+
+  const savePanels = () => {
+    const allRects: Record<string, DOMRect | undefined> = {};
+    Object.keys(boxes).map((id) => {
+      const element = document.getElementById(id);
+      allRects[id] = element?.getBoundingClientRect();
+    });
+    const panels = Object.keys(boxes).map((id) => {
+      const panel = boxes[id];
+      const rect = allRects[id];
+      if (rect?.width && rect?.height) {
+        return {
+          x: (panel.x / scaleFactor) * gridFactorX,
+          y: (panel.y / scaleFactor) * gridFactorY,
+          width: (rect?.width / scaleFactor) * gridFactorX,
+          height: (rect?.height / scaleFactor) * gridFactorY,
+          ledStartDirectionV: panel.ledStartDirectionV,
+          ledStartDirectionH: panel.ledStartDirectionH,
+          ledPanelOrientation: panel.ledPanelOrientation,
+          serpentineState: panel.serpentineState,
+        } as BoxData;
+      }
+    });
+
+    return panels;
   };
 
   return (
@@ -400,6 +485,18 @@ I call this function from Rnd component during "onDrag" event. It should work fo
             Y Factor: {`${gridFactorY}`}*
           </div>
         </div>
+        <div className="tooltip tooltip-right" data-tip="Save panels to config">
+          <button
+            className="btn btn-square btn-outline rounded-md bg-orange-200"
+            onClick={() =>
+              (
+                document?.getElementById("my_modal_2") as HTMLDialogElement
+              )?.showModal()
+            }
+          >
+            <ArrowDownTrayIcon className="size-6" />
+          </button>
+        </div>
       </div>
       <div
         onClick={() => setSelectedBox(null)}
@@ -422,6 +519,10 @@ I call this function from Rnd component during "onDrag" event. It should work fo
             gridFactorX={gridFactorX}
             gridFactorY={gridFactorY}
             scaleFactor={scaleFactor}
+            startWidth={boxes[id].startWidth}
+            startHeight={boxes[id].startHeight}
+            startX={boxes[id].x}
+            startY={boxes[id].y}
           />
         ))}
       </div>
@@ -434,7 +535,11 @@ I call this function from Rnd component during "onDrag" event. It should work fo
           height: boundingRect.height,
         }}
       />
-      <div className="bold absolute left-12 top-8 rounded-lg border bg-primary p-4 font-bold text-primary-content">{`True LED count: ${getTotalLeds(boundingRect, scaleFactor, gridFactorX, gridFactorY)}`}</div>
+      <div
+        onClick={updateBoundingRect}
+        className="bold absolute left-12 top-8 rounded-lg border bg-primary p-4 font-bold text-primary-content"
+      >{`True LED count: ${getTotalLeds(boundingRect, scaleFactor, gridFactorX, gridFactorY)}`}</div>
+      <OutputPanel loadPanels={loadPanels} savePanels={savePanels} />
     </div>
   );
 };
@@ -460,3 +565,19 @@ function haveIntersection(other: DOMRect, main: DOMRect) {
   );
   return isIntersection;
 }
+
+const gcd = (a: number, b: number): number => {
+  return b === 0 ? a : gcd(b, a % b);
+};
+
+const findLargestGridFactor = (panels: BoxData[]) => {
+  let gcdX = panels[0].x;
+  let gcdY = panels[0].y;
+
+  panels.forEach((panel) => {
+    gcdX = gcd(gcdX, panel.x);
+    gcdY = gcd(gcdY, panel.y);
+  });
+
+  return { gcdX, gcdY };
+};

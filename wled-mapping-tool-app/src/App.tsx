@@ -27,14 +27,6 @@ const App: React.FC = () => {
       </div>
       <PanelManager />
 
-      {/* <GridSettings onGridSizeChange={handleGridSizeChange} />
-      <LEDGrid
-        gridX={gridSize.x}
-        gridY={gridSize.y}
-        onGridUpdate={setGridState}
-      />
-      <OutputPanel grid={gridState} /> */}
-
       <div className="">
         <label className="absolute right-2 top-2 h-6 w-12">
           {/* Hidden Checkbox */}

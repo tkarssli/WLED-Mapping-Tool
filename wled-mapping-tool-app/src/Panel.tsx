@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DraggableData, Position, Rnd, RndDragEvent } from "react-rnd";
 import {
   ArrowLeftEndOnRectangleIcon,
@@ -40,12 +40,17 @@ const Panel = ({
   gridFactorX,
   gridFactorY,
   scaleFactor,
+  startWidth,
+  startHeight,
+  startX,
+  startY,
 }: {
   id: string;
   handleDragStop: (
     e: RndDragEvent,
     data: DraggableData,
     updatePosition: (data: Position) => void,
+    id: string,
   ) => void;
   handleDragStart: (
     e: RndDragEvent,
@@ -82,12 +87,21 @@ const Panel = ({
   gridFactorX: number;
   gridFactorY: number;
   scaleFactor: number;
+  startWidth?: number;
+  startHeight?: number;
+  startX?: number;
+  startY?: number;
 }) => {
   const [size, updateSize] = useState({
     width: scaleFactor * 2,
     height: scaleFactor * 2,
   });
   const [position, updatePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    updatePosition({ x: startX ?? 0, y: startY ?? 0 });
+    updateSize({ width: startWidth ?? 0, height: startHeight ?? 0 });
+  }, []);
 
   const handlePositionUpdate = ({ x, y }: Position) => {
     updatePosition({
@@ -121,7 +135,7 @@ const Panel = ({
       }}
       onDrag={handleDrag}
       onDragStop={(e, data) => {
-        handleDragStop(e, data, handlePositionUpdate);
+        handleDragStop(e, data, handlePositionUpdate, id);
       }}
       onResize={(e, direction, ref, delta, position) => {
         updateSize({

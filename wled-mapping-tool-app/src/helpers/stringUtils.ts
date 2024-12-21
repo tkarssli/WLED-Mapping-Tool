@@ -1,0 +1,2 @@
+export const urlRegex = /^https?:\/\/(\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:\d{1,5}\b)?|([-a-zA-Z0-9\u1F60-\uFFFF\u1F60-\uFFFF\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F@:%._\+~#=]{1,256})\.*)\/?$/
+export const formatUrl = (url: string) =>  url.replace(/\/*$/, "");
