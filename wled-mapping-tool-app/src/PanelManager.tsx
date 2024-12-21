@@ -115,18 +115,20 @@ const PanelManager = () => {
 
     if (allRects.length === 0) return;
 
+    const scrollY = window.scrollY;
+
     const minX = Math.min(
       ...allRects.map((rect) => (rect ? rect.left : Infinity)),
     );
-    const minY = Math.min(
-      ...allRects.map((rect) => (rect ? rect.top : Infinity)),
-    );
+    const minY =
+      Math.min(...allRects.map((rect) => (rect ? rect.top : Infinity))) +
+      scrollY;
     const maxX = Math.max(
       ...allRects.map((rect) => (rect ? rect.right : Infinity)),
     );
-    const maxY = Math.max(
-      ...allRects.map((rect) => (rect ? rect.bottom : Infinity)),
-    );
+    const maxY =
+      Math.max(...allRects.map((rect) => (rect ? rect.bottom : Infinity))) +
+      scrollY;
 
     setBoundingRect({
       x: minX,
